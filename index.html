@@ -8,10 +8,10 @@
 <style>
   /* NOUVELLES COULEURS AMBIANCE BD */
   :root {
-    --rose: #e9cae69a; /* Un jaune légèrement plus chaud et vintage */
-    --red:    #D32F2F; /* Le rouge classique de la robe de Mafalda */
-    --blue:   #5DADE2; /* Un bleu plus doux */
-    --dark:   #1a1a1a; /* Encre noire */
+    --rose: #e9cae69a;
+    --red:    #D32F2F;
+    --blue:   #5DADE2;
+    --dark:   #1a1a1a;
     --white:  #FDFEFE;
     --green:  #27ae60;
   }
@@ -45,10 +45,11 @@
     background:var(--red); border:4px solid var(--dark);
     border-radius:16px; padding:14px 40px;
     box-shadow:6px 6px 0 var(--dark); transform:rotate(-1.5deg); margin-top:10px;
+    text-align: center;
   }
   .title-banner h1 {
-    font-family:'Bangers',cursive; font-size:clamp(2rem,6vw,3.6rem);
-    color:var(--white); letter-spacing:3px; text-shadow:3px 3px 0 var(--dark); text-align:center;
+    font-family:'Bangers',cursive; font-size:clamp(1.8rem,6vw,3.6rem);
+    color:var(--white); letter-spacing:3px; text-shadow:3px 3px 0 var(--dark);
   }
 
   /* VOICE PICKER */
@@ -71,21 +72,20 @@
 
   /* SCENE */
   .scene {
-    display:flex; align-items:flex-end;
+    display:flex; align-items:flex-end; gap: 20px;
     position:relative; width:100%; max-width:680px;
   }
   
-  /* NOUVEAU STYLE POUR L'IMAGE DE MAFALDA */
+  /* IMAGE DE MAFALDA */
   .mafalda-wrap { flex-shrink:0; width:210px; position:relative; z-index:2; }
   .mafalda-wrap img {
-    width: 100%;
-    height: auto;
-    display: block;
-    filter: drop-shadow(4px 4px 0px var(--dark)); /* Ombre style BD */
+    width: 100%; height: auto; display: block;
+    filter: drop-shadow(4px 4px 0px var(--dark));
   }
   .mafalda-wrap.talking { animation:bounce 0.35s ease infinite alternate; }
   @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-9px)} }
 
+  /* BULLE DE TEXTE */
   .bubble {
     position:relative; background:var(--white);
     border:4px solid var(--dark); border-radius:20px;
@@ -129,13 +129,15 @@
   /* GROS BOUTON */
   .big-random-btn {
     font-family:'Bangers',cursive;
-    font-size:clamp(1.5rem,4vw,2.2rem);
+    font-size:clamp(1.2rem,4vw,2.2rem);
     letter-spacing:2px; padding:18px 52px;
     border:5px solid var(--dark); border-radius:20px;
     cursor:pointer; background:var(--red); color:var(--white);
     box-shadow:7px 7px 0 var(--dark); transition:all 0.12s;
     text-shadow:2px 2px 0 rgba(0,0,0,0.3);
     position:relative; overflow:hidden;
+    text-align: center;
+    max-width: 100%;
   }
   .big-random-btn::after {
     content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
@@ -146,12 +148,60 @@
   .big-random-btn:hover::after { left:150%; }
   .big-random-btn:active { transform:translate(3px,3px); box-shadow:4px 4px 0 var(--dark); }
 
-  .counter { font-family:'Bangers',cursive; font-size:1rem; color:var(--dark); opacity:0.5; letter-spacing:2px; min-height:1.2em; }
+  .counter { font-family:'Bangers',cursive; font-size:1rem; color:var(--dark); opacity:0.5; letter-spacing:2px; min-height:1.2em; text-align: center; }
 
   .star-burst { position:absolute; font-size:1.5rem; animation:spin 4s linear infinite; pointer-events:none; }
   @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
   footer { font-family:'Comic Neue',cursive; font-size:0.78rem; color:#555; padding-bottom:24px; text-align:center; margin-top:auto; }
+
+
+  /* =========================================
+     MEDIA QUERIES (RESPONSIVE)
+     ========================================= */
+  
+  /* Pour les tablettes et petits écrans d'ordinateur */
+  @media (max-width: 768px) {
+    .title-banner { padding: 10px 20px; }
+    .mafalda-wrap { width: 170px; }
+    .bubble { padding: 16px 20px; margin-bottom: 20px; }
+    .big-random-btn { padding: 14px 30px; }
+  }
+
+  /* Pour les smartphones */
+  @media (max-width: 600px) {
+    .container { padding: 15px; }
+    .scene {
+      flex-direction: column-reverse; /* Mafalda en bas, bulle en haut */
+      align-items: center;
+      gap: 15px;
+    }
+    .mafalda-wrap { width: 140px; }
+    .bubble {
+      width: 100%; margin-bottom: 0; min-height: auto;
+    }
+    
+    /* On déplace la flèche de la bulle vers le bas */
+    .bubble::before {
+      left: 50%; bottom: -28px;
+      margin-left: -14px;
+      border-top: 28px solid var(--dark);
+      border-bottom: none;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+    }
+    .bubble::after {
+      left: 50%; bottom: -22px;
+      margin-left: -12px;
+      border-top: 24px solid var(--white);
+      border-bottom: none;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+    }
+
+    .voice-picker { gap: 6px; }
+    .voice-btn { padding: 5px 10px; font-size: 0.75rem; }
+  }
 </style>
 </head>
 <body>
@@ -195,15 +245,15 @@
   </button>
   <div class="counter" id="counter"></div>
 
-  <footer>Fait avec ❤️ pour Pouleto — inspiré de Mafalda par Quino</footer>
+  <footer>Fait avec ❤️ pour Pouleto <br> — <br> inspiré de Mafalda par Nelson-dev</footer>
 </div>
 
 <script>
 // ════════════════════════════════════════
 //  ⚙️  CONFIG — modifie ici ta clé et ta voix par défaut
 // ════════════════════════════════════════
-const API_KEY         = '5da6c5e5fc5f849e1cdb6886aee4056d3fdf49099bf7fc1e4954d04965174b7e';   // ← colle ta clé ElevenLabs
-let   voiceId         = 'jsCqWAovK2LkecY7zXl4'; // voix par défaut : Freya
+const API_KEY         = '5da6c5e5fc5f849e1cdb6886aee4056d3fdf49099bf7fc1e4954d04965174b7e';   
+let   voiceId         = 'jsCqWAovK2LkecY7zXl4'; 
 
 // ════════════════════════════════════════
 //  MESSAGES
