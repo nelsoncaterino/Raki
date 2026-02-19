@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mafalda - Bon Anniversaire Pouleto!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* NOUVELLES COULEURS AMBIANCE BD */
+  :root {
+    --rose: #e9cae69a; /* Un jaune légèrement plus chaud et vintage */
+    --red:    #D32F2F; /* Le rouge classique de la robe de Mafalda */
+    --blue:   #5DADE2; /* Un bleu plus doux */
+    --dark:   #1a1a1a; /* Encre noire */
+    --white:  #FDFEFE;
+    --green:  #27ae60;
+  }
+  
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--rose);
+    font-family: 'Comic Neue', cursive;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CONFETTI */
+  .confetti-bg { position:fixed; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .confetto    { position:absolute; border-radius:2px; animation:fall linear infinite; opacity:0.75; }
+  @keyframes fall {
+    0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
+    100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+  }
+
+  /* LAYOUT */
+  .container {
+    position:relative; z-index:1;
+    max-width:860px; margin:0 auto; padding:20px;
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; gap:20px;
+  }
+
+  /* TITRE */
+  .title-banner {
+    background:var(--red); border:4px solid var(--dark);
+    border-radius:16px; padding:14px 40px;
+    box-shadow:6px 6px 0 var(--dark); transform:rotate(-1.5deg); margin-top:10px;
+  }
+  .title-banner h1 {
+    font-family:'Bangers',cursive; font-size:clamp(2rem,6vw,3.6rem);
+    color:var(--white); letter-spacing:3px; text-shadow:3px 3px 0 var(--dark); text-align:center;
+  }
+
+  /* VOICE PICKER */
+  .voice-picker {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;
+  }
+  .voice-label {
+    font-family:'Bangers',cursive; font-size:1rem; letter-spacing:1px;
+    color:var(--dark); opacity:0.7;
+  }
+  .voice-btn {
+    font-family:'Comic Neue',cursive; font-weight:700; font-size:0.82rem;
+    padding:6px 14px; border:3px solid var(--dark); border-radius:20px;
+    cursor:pointer; background:var(--white); color:var(--dark);
+    box-shadow:3px 3px 0 var(--dark); transition:all 0.12s;
+  }
+  .voice-btn:hover  { transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--dark); }
+  .voice-btn:active { transform:translate(1px,1px);   box-shadow:2px 2px 0 var(--dark); }
+  .voice-btn.active { background:var(--blue); color:white; }
+
+  /* SCENE */
+  .scene {
+    display:flex; align-items:flex-end;
+    position:relative; width:100%; max-width:680px;
+  }
+  
+  /* NOUVEAU STYLE POUR L'IMAGE DE MAFALDA */
+  .mafalda-wrap { flex-shrink:0; width:210px; position:relative; z-index:2; }
+  .mafalda-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(4px 4px 0px var(--dark)); /* Ombre style BD */
+  }
+  .mafalda-wrap.talking { animation:bounce 0.35s ease infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-9px)} }
+
+  .bubble {
+    position:relative; background:var(--white);
+    border:4px solid var(--dark); border-radius:20px;
+    padding:22px 26px; flex:1; margin-bottom:40px;
+    box-shadow:5px 5px 0 var(--dark); min-height:120px;
+    display:flex; flex-direction:column; justify-content:center; gap:8px;
+  }
+  .bubble::before {
+    content:''; position:absolute; left:-28px; bottom:28px;
+    width:0; height:0;
+    border-top:14px solid transparent; border-bottom:14px solid transparent; border-right:28px solid var(--dark);
+  }
+  .bubble::after {
+    content:''; position:absolute; left:-20px; bottom:30px;
+    width:0; height:0;
+    border-top:12px solid transparent; border-bottom:12px solid transparent; border-right:24px solid var(--white);
+  }
+  .message-text {
+    font-family:'Comic Neue',cursive; font-weight:700;
+    font-size:clamp(1.2rem,3.5vw,2rem); color:var(--dark); line-height:1.3;
+  }
+  .lang-row {
+    font-size:clamp(0.75rem,2vw,0.95rem); color:var(--blue);
+    font-weight:700; font-style:italic;
+    display:flex; align-items:center; gap:6px;
+  }
+  .speaking-dot {
+    width:9px; height:9px; border-radius:50%; background:var(--green);
+    flex-shrink:0; opacity:0; transition:opacity 0.25s;
+    animation:pulse 0.55s ease-in-out infinite alternate;
+  }
+  .speaking-dot.on { opacity:1; }
+  @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.7)} }
+
+  .pop-in { animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+  @keyframes popIn {
+    0%   { opacity:0; transform:scale(0.7) translateY(-10px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  /* GROS BOUTON */
+  .big-random-btn {
+    font-family:'Bangers',cursive;
+    font-size:clamp(1.5rem,4vw,2.2rem);
+    letter-spacing:2px; padding:18px 52px;
+    border:5px solid var(--dark); border-radius:20px;
+    cursor:pointer; background:var(--red); color:var(--white);
+    box-shadow:7px 7px 0 var(--dark); transition:all 0.12s;
+    text-shadow:2px 2px 0 rgba(0,0,0,0.3);
+    position:relative; overflow:hidden;
+  }
+  .big-random-btn::after {
+    content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+    transition:left 0.4s;
+  }
+  .big-random-btn:hover  { transform:translate(-3px,-3px); box-shadow:10px 10px 0 var(--dark); }
+  .big-random-btn:hover::after { left:150%; }
+  .big-random-btn:active { transform:translate(3px,3px); box-shadow:4px 4px 0 var(--dark); }
+
+  .counter { font-family:'Bangers',cursive; font-size:1rem; color:var(--dark); opacity:0.5; letter-spacing:2px; min-height:1.2em; }
+
+  .star-burst { position:absolute; font-size:1.5rem; animation:spin 4s linear infinite; pointer-events:none; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  footer { font-family:'Comic Neue',cursive; font-size:0.78rem; color:#555; padding-bottom:24px; text-align:center; margin-top:auto; }
+</style>
+</head>
+<body>
+
+<div class="confetti-bg" id="confettiBg"></div>
+
+<div class="container">
+
+  <div class="title-banner">
+    <h1>🎂 Joyeux Anniversaire Pouleto! 🎉</h1>
+  </div>
+
+  <div class="voice-picker">
+    <span class="voice-label">🎙️ Voix :</span>
+    <button class="voice-btn active" onclick="setVoice(this,'jsCqWAovK2LkecY7zXl4')">Freya</button>
+    <button class="voice-btn" onclick="setVoice(this,'pFZP5JQG7iQjIQuC4Bku')">Lily</button>
+    <button class="voice-btn" onclick="setVoice(this,'XB0fDUnXU5powFXDhCwa')">Charlotte</button>
+    <button class="voice-btn" onclick="setVoice(this,'cgSgspJ2msm6clMCkdW9')">Jessica</button>
+    <button class="voice-btn" onclick="setVoice(this,'FGY2WhTYpPnrIDTdsKH5')">Laura</button>
+  </div>
+
+  <div class="scene">
+    <span class="star-burst" style="top:-10px;right:16px">⭐</span>
+    <span class="star-burst" style="top:14px;right:54px;animation-duration:2.8s;font-size:1rem">✨</span>
+
+    <div class="mafalda-wrap" id="mafaldaWrap">
+      <img src="mafalda.png" alt="Mafalda">
+    </div>
+
+    <div class="bubble">
+      <div class="message-text" id="msgText">Bon anniversaire Pouleto !</div>
+      <div class="lang-row">
+        <span class="speaking-dot" id="speakDot"></span>
+        <span id="langTag">(Français)</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="big-random-btn" onclick="randomLang()">
+    🎲 Une autre langue !
+  </button>
+  <div class="counter" id="counter"></div>
+
+  <footer>Fait avec ❤️ pour Pouleto — inspiré de Mafalda par Quino</footer>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  ⚙️  CONFIG — modifie ici ta clé et ta voix par défaut
+// ════════════════════════════════════════
+const API_KEY         = '5da6c5e5fc5f849e1cdb6886aee4056d3fdf49099bf7fc1e4954d04965174b7e';   // ← colle ta clé ElevenLabs
+let   voiceId         = 'jsCqWAovK2LkecY7zXl4'; // voix par défaut : Freya
+
+// ════════════════════════════════════════
+//  MESSAGES
+// ════════════════════════════════════════
+const messages = [
+  { msg:"Bon anniversaire Pouleto !",                       lang:"Français",               code:"fr" },
+  { msg:"Happy birthday Pouleto!",                          lang:"English",                code:"en" },
+  { msg:"Buon compleanno Pouleto!",                         lang:"Italiano",               code:"it" },
+  { msg:"¡Feliz cumpleaños Pouleto!",                       lang:"Español",                code:"es" },
+  { msg:"Alles Gute zum Geburtstag Pouleto!",               lang:"Deutsch",                code:"de" },
+  { msg:"Feliz aniversário Pouleto!",                       lang:"Português",              code:"pt" },
+  { msg:"С днём рождения, Пулето!",                         lang:"Русский",                code:"ru" },
+  { msg:"生日快乐，普莱托！",                                   lang:"中文 (Mandarin)",          code:"zh" },
+  { msg:"Pouleto お誕生日おめでとう！",                        lang:"日本語",                    code:"ja" },
+  { msg:"생일 축하해, 풀레토!",                                 lang:"한국어",                   code:"ko" },
+  { msg:"عيد ميلاد سعيد يا بوليتو!",                        lang:"العربية",                 code:"ar" },
+  { msg:"Gelukkige verjaardag Pouleto!",                    lang:"Nederlands",             code:"nl" },
+  { msg:"Grattis på födelsedagen Pouleto!",                 lang:"Svenska",                code:"sv" },
+  { msg:"Tillykke med fødselsdagen Pouleto!",               lang:"Dansk",                  code:"da" },
+  { msg:"Hyvää syntymäpäivää Pouleto!",                     lang:"Suomi",                  code:"fi" },
+  { msg:"Boldog születésnapot Pouleto!",                    lang:"Magyar",                 code:"hu" },
+  { msg:"Wszystkiego najlepszego Pouleto!",                 lang:"Polski",                 code:"pl" },
+  { msg:"İyi ki doğdun Pouleto!",                           lang:"Türkçe",                 code:"tr" },
+  { msg:"Chúc mừng sinh nhật Pouleto!",                     lang:"Tiếng Việt",             code:"vi" },
+  { msg:"!יום הולדת שמח פולטו",                             lang:"עברית",                   code:"he" },
+  { msg:"जन्मदिन मुबारक हो पूलेतो!",                       lang:"हिन्दी",                  code:"hi" },
+  { msg:"শুভ জন্মদিন পুলেতো!",                              lang:"বাংলা",                   code:"bn" },
+  { msg:"Selamat ulang tahun Pouleto!",                     lang:"Bahasa Indonesia",       code:"id" },
+  { msg:"Maligayang Bati Pouleto!",                         lang:"Filipino",               code:"fil"},
+  { msg:"Bon anniversari Pouleto!",                         lang:"Catalan",                code:"ca" },
+  { msg:"С Днем народження, Пулето!",                       lang:"Українська",             code:"uk" },
+  { msg:"Sretan rođendan Pouleto!",                         lang:"Hrvatski",               code:"hr" },
+  { msg:"Všechno nejlepší Pouleto!",                        lang:"Čeština",                code:"cs" },
+  { msg:"გილოცავ დაბადების დღეს პულეტო!",                 lang:"ქართული",                code:"ka" },
+  { msg:"Շնորհավոր ծնունդդ Pouleto!",                       lang:"Հայերեն",                 code:"hy" },
+  { msg:"تولدت مبارک پولتو!",                               lang:"فارسی",                   code:"fa" },
+  { msg:"Hongera Pouleto!",                                 lang:"Swahili",                code:"sw" },
+  { msg:"¡Feliz cumple Pouleto!",                           lang:"Español argentino 🇦🇷",   code:"es" },
+  { msg:"Feliz aniversário Pouleto!",                       lang:"Português Brasil 🇧🇷",    code:"pt" },
+  { msg:"Veseli rojstni dan Pouleto!",                      lang:"Slovenščina",            code:"sl" },
+  { msg:"Laimingų gimtadienio Pouleto!",                    lang:"Lietuvių",               code:"lt" },
+  { msg:"Daudz laimes dzimšanas dienā Pouleto!",            lang:"Latviešu",               code:"lv" },
+  { msg:"Gelukkige verjaarsdag Pouleto!",                   lang:"Afrikaans",              code:"af" },
+  { msg:"Gut Gebuersdag Pouleto!",                          lang:"Luxembourgeois",         code:"lb" },
+  { msg:"Bloavez mat Pouleto!",                             lang:"Breton",                 code:"br" },
+  { msg:"Joyeux anniversaire Pouleto !",                    lang:"Français belge 🇧🇪",       code:"fr" },
+  { msg:"Bon anivèsè Pouleto!",                             lang:"Créole réunionnais",      code:"fr" },
+  { msg:"பிறந்தநாள் வாழ்த்துக்கள் புலேட்டோ!",             lang:"தமிழ்",                   code:"ta" },
+  { msg:"Sve najbolje Pouleto!",                            lang:"Srpski",                 code:"sr" },
+  { msg:"Šťastný narodeniny Pouleto!",                      lang:"Slovenčina",             code:"sk" },
+  { msg:"Joyeux anniversaire Pouleto !",                    lang:"Occitan",                code:"fr" },
+  { msg:"Bonne fête Pouleto !",                             lang:"Français québécois 🇨🇦",   code:"fr" },
+  { msg:"Herzlichen Glückwunsch Pouleto!",                  lang:"Deutsch (formel)",       code:"de" },
+  { msg:"Feliz aniversario Pouleto!",                       lang:"Galicien",               code:"gl" },
+  { msg:"Sai hannun haihuwa Pouleto!",                      lang:"Hausa",                  code:"ha" },
+];
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let current      = 0;
+let currentAudio = null;
+let lastPicked   = new Set([0]);
+
+const msgTextEl   = document.getElementById('msgText');
+const langTagEl   = document.getElementById('langTag');
+const counterEl   = document.getElementById('counter');
+const speakDot    = document.getElementById('speakDot');
+const mafaldaWrap = document.getElementById('mafaldaWrap');
+
+// ════════════════════════════════════════
+//  VOICE PICKER
+// ════════════════════════════════════════
+function setVoice(btn, id) {
+  voiceId = id;
+  document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  WEB SPEECH FALLBACK
+// ════════════════════════════════════════
+let wsVoices = [];
+function loadWSVoices() { wsVoices = window.speechSynthesis?.getVoices() || []; }
+loadWSVoices();
+if (window.speechSynthesis?.onvoiceschanged !== undefined)
+  window.speechSynthesis.onvoiceschanged = loadWSVoices;
+
+const localeMap = {
+  fr:'fr-FR', en:'en-US', it:'it-IT', es:'es-ES', de:'de-DE', pt:'pt-PT',
+  ru:'ru-RU', zh:'zh-CN', ja:'ja-JP', ko:'ko-KR', ar:'ar-SA', nl:'nl-NL',
+  sv:'sv-SE', da:'da-DK', fi:'fi-FI', hu:'hu-HU', pl:'pl-PL', tr:'tr-TR',
+  vi:'vi-VN', he:'he-IL', hi:'hi-IN', bn:'bn-BD', ta:'ta-IN', af:'af-ZA',
+  id:'id-ID', fil:'fil-PH', ca:'ca-ES', uk:'uk-UA', sr:'sr-RS', hr:'hr-HR',
+  cs:'cs-CZ', sk:'sk-SK', ka:'ka-GE', hy:'hy-AM', fa:'fa-IR', sw:'sw-KE',
+  sl:'sl-SI', lb:'de-LU', br:'fr-FR', lt:'lt-LT', lv:'lv-LV', gl:'gl-ES',
+};
+
+function speakWS(text, code) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter  = new SpeechSynthesisUtterance(text);
+  const locale = localeMap[code] || 'fr-FR';
+  utter.lang   = locale;
+  utter.pitch  = 1.8;
+  utter.rate   = 1.0;
+  let voice = wsVoices.find(v => v.lang === locale);
+  if (!voice) voice = wsVoices.find(v => v.lang.startsWith(code));
+  if (voice) utter.voice = voice;
+  utter.onstart = () => setSpeaking(true);
+  utter.onend   = () => setSpeaking(false);
+  window.speechSynthesis.speak(utter);
+}
+
+// ════════════════════════════════════════
+//  ELEVENLABS
+// ════════════════════════════════════════
+async function speakEL(text, code) {
+  stopAudio();
+  setSpeaking(true);
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method:'POST', mode:'cors',
+      headers:{ 'xi-api-key': API_KEY, 'Content-Type':'application/json', 'Accept':'audio/mpeg' },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings:{ stability:0.40, similarity_boost:0.78, style:0.30, use_speaker_boost:true }
+      })
+    });
+    if (!res.ok) throw new Error('EL ' + res.status);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
+    currentAudio.onerror = () => setSpeaking(false);
+    currentAudio.play();
+  } catch(e) {
+    console.warn('EL fallback:', e.message);
+    setSpeaking(false);
+    speakWS(text, code);
+  }
+}
+
+function stopAudio() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  setSpeaking(false);
+}
+
+function setSpeaking(on) {
+  speakDot.classList.toggle('on', on);
+  mafaldaWrap.classList.toggle('talking', on);
+}
+
+function speak(text, code) {
+  const key = API_KEY.trim();
+  if (key && key !== 'METS_TA_CLE_ICI') speakEL(text, code);
+  else speakWS(text, code);
+}
+
+// ════════════════════════════════════════
+//  RANDOM LANG
+// ════════════════════════════════════════
+function randomLang() {
+  if (lastPicked.size >= messages.length) lastPicked = new Set([current]);
+  let idx;
+  do { idx = Math.floor(Math.random() * messages.length); }
+  while (lastPicked.has(idx));
+  lastPicked.add(idx);
+  current = idx;
+
+  const m = messages[current];
+
+  msgTextEl.classList.remove('pop-in');
+  langTagEl.classList.remove('pop-in');
+  void msgTextEl.offsetWidth;
+  msgTextEl.classList.add('pop-in');
+  langTagEl.classList.add('pop-in');
+
+  msgTextEl.textContent = m.msg;
+  langTagEl.textContent = '(' + m.lang + ')';
+  counterEl.textContent = lastPicked.size + ' / ' + messages.length + ' langues découvertes';
+
+  speak(m.msg, m.code);
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+msgTextEl.textContent = messages[0].msg;
+langTagEl.textContent = '(Français)';
+
+// ════════════════════════════════════════
+//  CONFETTI
+// ════════════════════════════════════════
+const colors = ['#D32F2F','#5DADE2','#F4D03F','#FF69B4','#7CFC00','#FF8C00','#FDFEFE','#9B59B6'];
+const bg = document.getElementById('confettiBg');
+for (let i = 0; i < 50; i++) {
+  const c = document.createElement('div');
+  c.className = 'confetto';
+  c.style.left   = Math.random() * 100 + '%';
+  c.style.top    = (Math.random() * 100 - 20) + '%';
+  c.style.background = colors[Math.floor(Math.random() * colors.length)];
+  c.style.animationDuration = (3 + Math.random() * 7) + 's';
+  c.style.animationDelay    = (Math.random() * 6) + 's';
+  c.style.width  = (5 + Math.random() * 10) + 'px';
+  c.style.height = (7 + Math.random() * 14) + 'px';
+  c.style.transform = `rotate(${Math.random()*360}deg)`;
+  bg.appendChild(c);
+}
+</script>
+</body>
+</html>
